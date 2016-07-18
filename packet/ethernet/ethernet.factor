@@ -1,7 +1,7 @@
 ! Copyright (C) 2016 Mike Maul.
 ! See http://factorcode.org/license.txt for BSD license.
 
-USING: math syntax kernel accessors sequences combinators assocs ;
+USING: math syntax kernel accessors sequences combinators assocs locals ;
 
 IN: packet.ethernet
 
@@ -58,11 +58,32 @@ TUPLE: ethernet mac-src mac-dst 8021q-tag ethernet-type ;
 : ethertype>string ( b -- s )
     2octets>number ethertypes at ;
 
-: parse-ethernet ( packet-byte-array -- packet-byte-array ethernet )
+: parse-ethernet-old ( packet-byte-array -- packet-byte-array ethernet )
     dup ethernet new ! --> bytes hdr byte-array ethernet
     swap ! --> bytes hdr ethernet byte-array
     { [ 0 6 rot subseq >>mac-src ] [  6 12 rot subseq >>mac-dst ] 
       ! [ 0 6 rot subseq >>8021q-tag ] 
       [  12 14 rot subseq ethertype>string >>ethernet-type ] } 2cleave
     2drop ;
+
+
+: parse-ethernet-new-old ( packet-byte-array -- packet-byte-array ethernet  )
+    ethernet new ! --> bytes hdr byte-array ethernet
+    swap ! --> bytes hdr ethernet byte-array
+    { [ 0 6 rot subseq >>mac-src ] [  6 12 rot subseq >>mac-dst ] 
+      ! [ 0 6 rot subseq >>8021q-tag ] 
+      [  12 14 rot subseq ethertype>string >>ethernet-type ]
+      [ 14 tail ] } 2cleave 
+      2nip nip swap ;
+
+: parse-ethernet ( packet-byte-array -- packet-byte-array ethernet  )
+  [let :> ba
+      ethernet new 
+           0 6 ba subseq >>mac-src
+           6 12 ba subseq >>mac-dst
+           12 14 ba subseq >>8021q-tag
+           12 14 ba subseq
+               ethertype>string >>ethernet-type
+      ba 14 tail
+  ] swap ;
 
