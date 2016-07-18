@@ -1,0 +1,11 @@
+
+
+
+version 1
+: parse-ip ( packet-byte-array -- packet-byte-array ethernet )
+    dup ethernet new ! --> bytes hdr byte-array ethernet
+    swap ! --> bytes hdr ethernet byte-array
+    { [ 0 6 rot subseq >>mac-src ] [  6 12 rot subseq >>mac-dst ] 
+      ! [ 0 6 rot subseq >>8021q-tag ] 
+      [  12 14 rot subseq ethertype>string >>ethernet-type ] } 2cleave
+    2drop ;
