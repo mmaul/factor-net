@@ -1,158 +1,158 @@
-USING: locals math syntax kernel accessors sequences combinators assocs ;
+USING: locals math syntax kernel accessors sequences combinators assocs alien.syntax alien.enums ;
 
 IN: packet.ip4
 ! Value	Protocol	References
-CONSTANT: protocols H{
-    { 0 "HOPOPT, IPv6 Hop-by-Hop Option" } ! RFC 2460
-    { 1 "ICMP, Internet Control Message Protocol" } ! RFC 792
-    { 2 "IGAP, IGMP for user Authentication Protocol.
-    ! IGMP, Internet Group Management Protocol.
-    ! RGMP, Router-port Group Management Protocol" } ! RFC 1112
-    { 3 "GGP, Gateway to Gateway Protocol" } ! RFC 823
-    { 4 "IP in IP encapsulation" } ! RFC 2003
-    { 5 "ST, Internet Stream Protocol" } ! RFC 1190, RFC 1819
-    { 6 "TCP, Transmission Control Protocol" } ! RFC 793
-    { 7 "UCL, CBT" } 
-    { 8 "EGP, Exterior Gateway Protocol" } ! RFC 888
-    { 9 "IGRP, Interior Gateway Routing Protocol" } 
-    { 10 "BBN RCC Monitoring" } 
-    { 11 "NVP, Network Voice Protocol" } ! RFC 741
-    { 12 "PUP" } 
-    { 13 "ARGUS" } 
-    { 14 "EMCON, Emission Control Protocol" } 
-    { 15 "XNET, Cross Net Debugger" } ! IEN 158
-    { 16 "Chaos" } 
-    { 17 "UDP, User Datagram Protocol" } ! RFC 768
-    { 18 "TMux, Transport Multiplexing Protocol" } ! IEN 90
-    { 19 "DCN Measurement Subsystems" } 
-    { 20 "HMP, Host Monitoring Protocol" } ! RFC 869
-    { 21 "Packet Radio Measurement" } 
-    { 22 "XEROX NS IDP" } 
-    { 23 "Trunk-1" } 
-    { 24 "Trunk-2" } 
-    { 25 "Leaf-1" } 
-    { 26 "Leaf-2" } 
-    { 27 "RDP, Reliable Data Protocol" } ! RFC 908
-    { 28 "IRTP, Internet Reliable Transaction Protocol" } ! RFC 938
-    { 29 "ISO Transport Protocol Class 4" } ! RFC 905
-    { 30 "NETBLT, Network Block Transfer" } 
-    { 31 "MFE Network Services Protocol" } 
-    { 32 "MERIT Internodal Protocol" } 
-    { 33 "DCCP, Datagram Congestion Control Protocol" } 
-    { 34 "Third Party Connect Protocol" } 
-    { 35 "IDPR, Inter-Domain Policy Routing Protocol" } 
-    { 36 "XTP, Xpress Transfer Protocol" } 
-    { 37 "Datagram Delivery Protocol" } 
-    { 38 "IDPR, Control Message Transport Protocol" } 
-    { 39 "TP++ Transport Protocol" } 
-    { 40 "IL Transport Protocol" } 
-    { 41 "IPv6 over IPv4" } ! RFC 2473
-    { 42 "SDRP, Source Demand Routing Protocol" } 
-    { 43 "IPv6 Routing header" } 
-    { 44 "IPv6 Fragment header" } 
-    { 45 "IDRP, Inter-Domain Routing Protocol" } 
-    { 46 "RSVP, Reservation Protocol" } 
-    { 47 "GRE, General Routing Encapsulation" } 
-    { 48 "DSR, Dynamic Source Routing Protocol" } 
-    { 49 "BNA" } 
-    { 50 "ESP, Encapsulating Security Payload" } 
-    { 51 "AH, Authentication Header" } 
-    { 52 "I-NLSP, Integrated Net Layer Security TUBA" } 
-    { 53 "SWIPE, IP with Encryption" } 
-    { 54 "NARP, NBMA Address Resolution Protocol" } 
-    { 55 "Minimal Encapsulation Protocol" } 
-    { 56 "TLSP, Transport Layer Security Protocol using Kryptonet key management" } 
-    { 57 "SKIP" } 
-    { 58 "ICMPv6, Internet Control Message Protocol for IPv6" }
-    ! MLD, Multicast Listener Discovery" 
-    { 59 "IPv6 No Next Header" } 
-    { 60 "IPv6 Destination Options" } 
-    { 61 "Any host internal protocol" } 
-    { 62 "CFTP" } 
-    { 63 "Any local network" } 
-    { 64 "SATNET and Backroom EXPAK" } 
-    { 65 "Kryptolan" } 
-    { 66 "MIT Remote Virtual Disk Protocol" } 
-    { 67 "Internet Pluribus Packet Core" } 
-    { 68 "Any distributed file system" } 
-    { 69 "SATNET Monitoring" } 
-    { 70 "VISA Protocol" } 
-    { 71 "Internet Packet Core Utility" } 
-    { 72 "Computer Protocol Network Executive" } 
-    { 73 "Computer Protocol Heart Beat" } 
-    { 74 "Wang Span Network" } 
-    { 75 "Packet Video Protocol" } 
-    { 76 "Backroom SATNET Monitoring" } 
-    { 77 "SUN ND PROTOCOL-Temporary" } 
-    { 78 "WIDEBAND Monitoring" } 
-    { 79 "WIDEBAND EXPAK" } 
-    { 80 "ISO-IP" } 
-    { 81 "VMTP, Versatile Message Transaction Protocol" } 
-    { 82 "SECURE-VMTP " } 
-    { 83 "VINES" } 
-    { 84 "TTP" } 
-    { 85 "NSFNET-IGP" } 
-    { 86 "Dissimilar Gateway Protocol" } 
-    { 87 "TCF" } 
-    { 88 "EIGRP" } 
-    { 89 "OSPF, Open Shortest Path First Routing Protocol.
-    ! MOSPF, Multicast Open Shortest Path First" } 
-    { 90 "Sprite RPC Protocol" } 
-    { 91 "Locus Address Resolution Protocol" } 
-    { 92 "MTP, Multicast Transport Protocol" } 
-    { 93 "AX.25" } 
-    { 94 "IP-within-IP Encapsulation Protocol" } 
-    { 95 "Mobile Internetworking Control Protocol" } 
-    { 96 "Semaphore Communications Sec. Pro" } 
-    { 97 "EtherIP" } 
-    { 98 "Encapsulation Header" } 
-    { 99 "Any private encryption scheme" } 
-    { 100 "GMTP" } 
-    { 101 "IFMP, Ipsilon Flow Management Protocol" } 
-    { 102 "PNNI over IP" } 
-    { 103 "PIM, Protocol Independent Multicast" } 
-    { 104 "ARIS" } 
-    { 105 "SCPS" } 
-    { 106 "QNX" } 
-    { 107 "Active Networks" } 
-    { 108 "IPPCP, IP Payload Compression Protocol" } ! RFC 2393
-    { 109 "SNP, Sitara Networks Protocol" } 
-    { 110 "Compaq Peer Protocol" } 
-    { 111 "IPX in IP" } 
-    { 112 "VRRP, Virtual Router Redundancy Protocol" } ! RFC 3768, RFC 5798
-    { 113 "PGM, Pragmatic General Multicast" } 
-    { 114 "any 0-hop protocol" } 
-    { 115 "L2TP, Level 2 Tunneling Protocol" } ! RFC 3931
-    { 116 "DDX, D-II Data Exchange" } 
-    { 117 "IATP, Interactive Agent Transfer Protocol" } 
-    { 118 "ST, Schedule Transfer" } 
-    { 119 "SRP, SpectraLink Radio Protocol" } 
-    { 120 "UTI" } 
-    { 121 "SMP, Simple Message Protocol" } 
-    { 122 "SM" } 
-    { 123 "PTP, Performance Transparency Protocol" } 
-    { 124 "ISIS over IPv4" } 
-    { 125 "FIRE" } 
-    { 126 "CRTP, Combat Radio Transport Protocol" } 
-    { 127 "CRUDP, Combat Radio User Datagram" } 
-    { 128 "SSCOPMCE" } 
-    { 129 "IPLT" } 
-    { 130 "SPS, Secure Packet Shield" } 
-    { 131 "PIPE, Private IP Encapsulation within IP" } 
-    { 132 "SCTP, Stream Control Transmission Protocol" } 
-    { 133 "Fibre Channel" } ! RFC 6172
-    { 134 "RSVP-E2E-IGNORE" } ! RFC 3175
-    { 135 "Mobility Header" } ! RFC 3775
-    { 136 "UDP-Lite, Lightweight User Datagram Protocol" } ! RFC 3828
-    { 137 "MPLS in IP" } ! RFC 4023
-    { 138 "MANET protocols" } ! RFC 5498
-    { 139 "HIP, Host Identity Protocol" } ! RFC 5201
-    { 140 "Shim6, Level 3 Multihoming Shim Protocol for IPv6" } ! RFC 5533
-    { 141 "WESP, Wrapped Encapsulating Security Payload" } ! RFC 5840
-    { 142 "ROHC, RObust Header Compression" } ! RFC 5858
-    { 254 "Experimentation and testing" } 
-    { 255 "reserved" }
-}
+ENUM: protocols 
+    { HOPOPT 0 } !  Option ! RFC 2460 
+    { ICMP 1 } !  Protocol ! RFC 792 
+!    { ICMP 1 } !  Protocol ! RFC 792 
+!    { ICMP 1 } !  Protocol ! RFC 792 
+!    { ICMP 1 } !  Protocol ! RFC 792 
+    { GGP 3 } !  Protocol ! RFC 823 
+    { IP 4 } ! in encapsulation ! RFC 2003 
+    { ST 5 } !  Protocol ! RFC 1190, RFC 1819 
+    { TCP 6 } !  Protocol ! RFC 793 
+    { UCL 7 } !  CBT  
+    { EGP 8 } !  Protocol ! RFC 888 
+    { IGRP 9 } !  Protocol  
+    { BBN 10 } ! RCC Monitoring  
+    { NVP 11 } !  Protocol ! RFC 741 
+    { PUP 12 } !  PUP  
+    { ARGUS 13 } !  ARGUS  
+    { EMCON 14 } !  Protocol  
+    { XNET 15 } !  Debugger ! IEN 158 
+    { Chaos 16 } !  Chaos  
+    { UDP 17 } !  Protocol ! RFC 768 
+    { TMux 18 } !  Protocol ! IEN 90 
+    { DCN 19 } ! Measurement Subsystems  
+    { HMP 20 } !  Protocol ! RFC 869 
+    { Packet-Radio-Measurment 21 } ! Radio Measurement  
+    { XEROX 22 } ! NS IDP  
+    { Trunk-1 23 } !  Trunk-1  
+    { Trunk-2 24 } !  Trunk-2  
+    { Leaf-1 25 } !  Leaf-1  
+    { Leaf-2 26 } !  Leaf-2  
+    { RDP 27 } !  Protocol ! RFC 908 
+    { IRTP 28 } !  Protocol ! RFC 938 
+    { ISO 29 } ! Transport 4 ! RFC 905 
+    { NETBLT 30 } !  Transfer  
+    { MFE 31 } ! Network Protocol  
+    { MERIT 32 } ! Internodal Protocol  
+    { DCCP 33 } !  Protocol  
+    { Third 34 } ! Party Protocol  
+    { IDPR-CM 35 } !  Protocol  
+    { XTP 36 } !  Protocol  
+    { Datagram 37 } ! Delivery Protocol  
+    { IDPR 38 } !  Protocol  
+    { TP++ 39 } ! Transport Protocol  
+    { IL 40 } ! Transport Protocol  
+    { IPv6oIPv4 41 } ! over IPv4 ! RFC 2473 
+    { SDRP 42 } !  Protocol  
+    { IPv6-RH 43 } ! Routing header  
+    { IPv6-FH 44 } ! Fragment header  
+    { IDRP 45 } !  Protocol  
+    { RSVP 46 } !  Protocol  
+    { GRE 47 } !  Encapsulation  
+    { DSR 48 } !  Protocol  
+    { BNA 49 } !  BNA  
+    { ESP 50 } !  Payload  
+    { AH 51 } !  Header  
+    { I-NLSP 52 } !  TUBA  
+    { SWIPE 53 } !  Encryption  
+    { NARP 54 } !  Protocol  
+    { Minimal 55 } ! Encapsulation Protocol  
+    { TLSP 56 } !  management  
+    { SKIP 57 } !  SKIP  
+ !   { SKIP 57 } !  SKIP  
+ !   { SKIP 57 } !  SKIP  
+    { IPv6-NH 59 } ! No Header  
+    { IPv6-DO 60 } ! Destination Options  
+    { AnyHost 61 } ! host protocol  
+    { CFTP 62 } !  CFTP  
+    { AnyLocal 63 } ! local network  
+    { SATNET 64 } ! and EXPAK  
+    { Kryptolan 65 } !  Kryptolan  
+    { MIT 66 } ! Remote Protocol  
+    { Internet-Pluribus 67 } ! Pluribus Core  
+    { AnyDist 68 } ! distributed system  
+    { SATNET-MON 69 } ! Monitoring Monitoring  
+    { VISA 70 } ! Protocol Protocol  
+    { Internet-Packet-Utility 71 } ! Packet Utility  
+    { Computer-Executive 72 } ! Protocol Executive  
+    { Computer-Beat 73 } ! Protocol Beat  
+    { Wang 74 } ! Span Network  
+    { Packet-Video 75 } ! Video Protocol  
+    { Backroom 76 } ! SATNET Monitoring  
+    { SUN 77 } ! ND PROTOCOL-Temporary  
+    { WIDEBAND-MON 78 } ! Monitoring Monitoring  
+    { WIDEBAND 79 } ! EXPAK EXPAK  
+    { ISO-IP 80 } !  ISO-IP  
+    { VMTP 81 } !  Protocol  
+    { SECURE-VMTP 82 } !  SECURE-VMTP  
+    { VINES 83 } !  VINES  
+    { TTP 84 } !  TTP  
+    { NSFNET-IGP 85 } !  NSFNET-IGP  
+    { Dissimilar 86 } ! Gateway Protocol  
+    { TCF 87 } !  TCF  
+    { EIGRP 88 } !  EIGRP  
+  !  { EIGRP 88 } !  EIGRP  
+  !  { EIGRP 88 } !  EIGRP  
+    { Sprite 90 } ! RPC Protocol  
+    { Locus 91 } ! Address Protocol  
+    { MTP 92 } !  Protocol  
+    { AX.25 93 } !  AX.25  
+    { IP-within-IP 94 } ! Encapsulation Protocol  
+    { Mobile 95 } ! Internetworking Protocol  
+    { Semaphore 96 } ! Communications Pro  
+    { EtherIP 97 } !  EtherIP  
+    { Encapsulation 98 } ! Header Header  
+    { Any 99 } ! private scheme  
+    { GMTP 100 } !  GMTP  
+    { IFMP 101 } !  Protocol  
+    { PNNI 102 } ! over IP  
+    { PIM 103 } !  Multicast  
+    { ARIS 104 } !  ARIS  
+    { SCPS 105 } !  SCPS  
+    { QNX 106 } !  QNX  
+    { Active 107 } ! Networks Networks  
+    { IPPCP 108 } !  Protocol ! RFC 2393 
+    { SNP 109 } !  Protocol  
+    { Compaq 110 } ! Peer Protocol  
+    { IPX 111 } ! in IP  
+    { VRRP 112 } !  Protocol ! RFC 3768, RFC 5798 
+    { PGM 113 } !  Multicast  
+    { any 114 } ! 0-hop protocol  
+    { L2TP 115 } !  Protocol ! RFC 3931 
+    { DDX 116 } !  Exchange  
+    { IATP 117 } !  Protocol  
+    { ST-Transfer 118 } !  Transfer  
+    { SRP 119 } !  Protocol  
+    { UTI 120 } !  UTI  
+    { SMP 121 } !  Protocol  
+    { SM 122 } !  SM  
+    { PTP 123 } !  Protocol  
+    { ISIS 124 } ! over IPv4  
+    { FIRE 125 } !  FIRE  
+    { CRTP 126 } !  Protocol  
+    { CRUDP 127 } !  Datagram  
+    { SSCOPMCE 128 } !  SSCOPMCE  
+    { IPLT 129 } !  IPLT  
+    { SPS 130 } !  Shield  
+    { PIPE 131 } !  IP  
+    { SCTP 132 } !  Protocol  
+    { Fibre 133 } ! Channel Channel ! RFC 6172 
+    { RSVP-E2E-IGNORE 134 } !  RSVP-E2E-IGNORE ! RFC 3175 
+    { Mobility 135 } ! Header Header ! RFC 3775 
+    { UDP-Lite 136 } !  Protocol ! RFC 3828 
+    { MPLS 137 } ! in IP ! RFC 4023 
+    { MANET 138 } ! protocols protocols ! RFC 5498 
+    { HIP 139 } !  Protocol ! RFC 5201 
+    { Shim6 140 } !  IPv6 ! RFC 5533 
+    { WESP 141 } !  Payload ! RFC 5840 
+    { ROHC 142 } !  Compression ! RFC 5858 
+    { Experimentation 254 } ! and testing  
+  !  { Experimentation 254 } ! and testing  
+    ;
 
 TUPLE: ip4 version header-length fields total-length identification flags fragment-offset ttl protocol checksum source destination ;
 
@@ -167,7 +167,7 @@ TUPLE: ip4 version header-length fields total-length identification flags fragme
           6  7 ba subseq >>flags           ! bit field
           6  8 ba subseq >>fragment-offset ! bit field
           8  9 ba subseq first >>ttl
-          9  10 ba subseq first protocols at >>protocol
+          9  10 ba subseq first protocols number>enum >>protocol
           10 12 ba subseq >>checksum
           12 16 ba subseq >>source
           16 20 ba subseq >>destination
