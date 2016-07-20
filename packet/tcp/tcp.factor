@@ -2,7 +2,7 @@
 ! Copyright (C) 2016 Mike Maul
 ! See http://factorcode.org/license.txt for BSD license.
 USING: locals math syntax kernel accessors sequences combinators assocs alien.syntax alien.enums 
-    packet.util ;
+    packet.util logging ;
 IN: packet.tcp
 
 ! 0                   1                   2                   3   
@@ -51,3 +51,5 @@ TUPLE: tcp source-port destination-port sequence-number acknowledgement-number
          23 24 ba subseq >>padding
       ba 24 tail
   ] swap ;
+
+\ parse-tcp NOTICE add-output-logging
